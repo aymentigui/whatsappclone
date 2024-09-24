@@ -16,7 +16,7 @@ const RightPanel = () => {
 		return (
 		  <>
 			{/* Affiche uniquement sur les grands écrans */}
-			<div className="hidden lg:block">
+			<div className="hidden md:block w-full">
 			  <ChatPlaceHolder />
 			</div>
 		  </>
