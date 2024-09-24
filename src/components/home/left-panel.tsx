@@ -51,6 +51,7 @@ const LeftPanel = () => {
 		if (selectedConversation && conversationIds && !conversationIds.includes(selectedConversation._id)) {
 			setSelectedConversation(null);
 		}
+		if(conversation) setFilteredConversations(conversation)
 	}, [conversation, selectedConversation, setSelectedConversation]);
 
 	if (isLoading) return null;
