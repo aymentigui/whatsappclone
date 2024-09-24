@@ -3,7 +3,7 @@ import { IMessage, useConversationStore } from "@/store/chat-store";
 import ChatBubbleAvatar from "./chat-bubble-avatar";
 import DateIndicator from "./date-indicator";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogDescription } from "../ui/dialog";
 import ReactPlayer from "react-player";
 import ReactAudioPlayer from "react-audio-player";  // Import de la librairie pour le player audio
@@ -51,7 +51,7 @@ const ChatBubble = ({ me, message, previousMessage }: ChatBubbleProps) => {
 		return (
 			<>
 				<DateIndicator message={message} previousMessage={previousMessage} />
-				<div className='flex gap-1 w-2/3'>
+				<div className='flex gap-1 w-full md:w-2/3'>
 					<ChatBubbleAvatar isGroup={isGroup} isMember={isMember} message={message} fromAI={fromAI} />
 					<div className={`flex flex-col z-20 max-w-fit px-2 pt-1 rounded-md shadow-md relative ${bgClass}`}>
 						{!fromAI && <OtherMessageIndicator />}
@@ -69,7 +69,7 @@ const ChatBubble = ({ me, message, previousMessage }: ChatBubbleProps) => {
 	return (
 		<>
 			<DateIndicator message={message} previousMessage={previousMessage} />
-			<div className='flex gap-1 w-2/3 ml-auto'>
+			<div className='flex gap-1 w-full md:w-2/3 ml-auto'>
 				<div className={`flex z-20 max-w-fit px-2 pt-1 rounded-md shadow-md ml-auto relative ${bgClass}`}>
 					<SelfMessageIndicator />
 					{renderMessageContent()}
@@ -82,13 +82,34 @@ const ChatBubble = ({ me, message, previousMessage }: ChatBubbleProps) => {
 };
 export default ChatBubble;
 
-const VideoMessage = ({ message }: { message: IMessage }) => {
-	return <ReactPlayer url={message.content} width='250px' height='250px' controls={true} light={true} />;
+const VideoMessage = ({ message }: { message: IMessage}) => {
+	const [isSmallScreen, setIsSmallScreen] = useState(false);
+	
+	useEffect(() => {
+        const handleResize = () => {
+            // Si l'écran est plus petit que 768px (taille md en Tailwind)
+            setIsSmallScreen(window.innerWidth < 768);
+        };
+
+        // Vérifier la taille de l'écran au chargement et lors du redimensionnement
+        handleResize();
+        window.addEventListener("resize", handleResize);
+
+        // Nettoyer l'écouteur lors du démontage du composant
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, []);
+
+	const width = isSmallScreen ? "150px" : "250px";
+    const height = isSmallScreen ? "150px" : "250px";
+
+	return <ReactPlayer url={message.content} width={width} height={height} controls={true} light={true} />;
 };
 
 const AudioMessage = ({ message }: { message: IMessage }) => {
 	return (
-		<div className="w-[250px] m-2">
+		<div className="w-[150px] md:w-[250px] m-2">
 			<ReactAudioPlayer
 				src={message.content}
 				controls
@@ -100,7 +121,7 @@ const AudioMessage = ({ message }: { message: IMessage }) => {
 
 const ImageMessage = ({ message, handleClick }: { message: IMessage; handleClick: () => void }) => {
 	return (
-		<div className='w-[250px] h-[250px] m-2 relative'>
+		<div className='w-[150px] h-[150px] md:w-[250px] md:h-[250px] m-2 relative'>
 			<Image
 				src={message.content}
 				fill
